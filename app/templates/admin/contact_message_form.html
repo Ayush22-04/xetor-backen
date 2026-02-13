@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create Contact Message</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include 'admin/_header.html' %}
+
+    <div class="container mt-4">
+      <h2>{% if doc %}Edit{% else %}Create{% endif %} Contact Message</h2>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="alert alert-{{category}}">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="post">
+        <div class="mb-3">
+          <label class="form-label">Full name</label>
+          <input name="full_name" class="form-control" value="{{ (data.full_name if data) or (doc.full_name if doc) }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ (data.email if data) or (doc.email if doc) }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Phone</label>
+          <input name="phone" class="form-control" value="{{ (data.phone if data) or (doc.phone if doc) }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Product (optional)</label>
+          <select name="product_id" class="form-select">
+            <option value="">-</option>
+            {% for p in products %}
+              <option value="{{ p._id }}" {% if (data.product_id and data.product_id == p._id) or (doc.product_id and (doc.product_id|string) == p._id) %}selected{% endif %}>{{ p.name or p.title or p._id }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Message</label>
+          <textarea name="message" class="form-control" rows="6" required>{{ (data.message if data) or (doc.message if doc) }}</textarea>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary">Create</button>
+          <a class="btn btn-secondary" href="{{ url_for('admin.docs_list', coll=coll) }}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

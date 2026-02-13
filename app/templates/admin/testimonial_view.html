@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Testimonial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include 'admin/_header.html' %}
+
+    <div class="container mt-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Testimonial</h2>
+        <div>
+          <a class="btn btn-secondary" href="{{ url_for('admin.docs_list', coll=coll) }}">Back</a>
+          <a class="btn btn-primary" href="{{ url_for('admin.docs_edit', coll=coll, id=doc._id) }}">Edit</a>
+          <a class="btn btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=doc._id) }}">Delete</a>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 text-center">
+              {% if doc.image %}
+                <img src="{{ doc.image }}" alt="image" class="img-fluid rounded mb-3" style="max-height:200px;">
+              {% else %}
+                <div class="bg-light p-4 rounded mb-3">No image</div>
+              {% endif %}
+              <h5 class="mb-0">{{ doc.name }}</h5>
+              {% if doc.role %}
+                <small class="text-muted">{{ doc.role }}</small>
+              {% endif %}
+            </div>
+            <div class="col-md-9">
+              <p class="lead">{{ doc.content }}</p>
+
+              <dl class="row">
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">{{ doc.email or '-' }}</dd>
+
+                <dt class="col-sm-3">Rating</dt>
+                <dd class="col-sm-9">
+                  {% if doc.rating %}
+                    {% for i in range(doc.rating) %}
+                      <span class="text-warning">★</span>
+                    {% endfor %}
+                    {% for i in range(5 - doc.rating) %}
+                      <span class="text-muted">★</span>
+                    {% endfor %}
+                    <small class="text-muted">({{ doc.rating }}/5)</small>
+                  {% else %}
+                    -
+                  {% endif %}
+                </dd>
+
+                <dt class="col-sm-3">Active</dt>
+                <dd class="col-sm-9">{{ 'Yes' if doc.is_active else 'No' }}</dd>
+
+                {% if doc.created_at %}
+                  <dt class="col-sm-3">Created</dt>
+                  <dd class="col-sm-9">{{ doc.created_at }}</dd>
+                {% endif %}
+                {% if doc.updated_at %}
+                  <dt class="col-sm-3">Updated</dt>
+                  <dd class="col-sm-9">{{ doc.updated_at }}</dd>
+                {% endif %}
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

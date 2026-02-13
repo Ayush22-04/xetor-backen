@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documents - {{ coll }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include 'admin/_header.html' %}
+
+    <div class="container mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Documents in {{ coll }}</h2>
+        <a class="btn btn-success" href="{{ url_for('admin.docs_create', coll=coll) }}">Create document</a>
+      </div>
+
+  {% if coll == 'home_heroes' %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>_id</th>
+              <th>Image</th>
+              <th>Title</th>
+              <th>Active</th>
+              <th>Created At</th>
+              <th>Updated At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in docs %}
+              <tr>
+                <td>{{ d._id }}</td>
+                <td>
+                  {% if d.hero_image %}
+                    <img src="{{ d.hero_image }}" alt="hero" style="max-width:120px;max-height:80px;">
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>{{ d.title or "-" }}</td>
+                <td>{% if d.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                <td>{{ d.created_at or "-" }}</td>
+                <td>{{ d.updated_at or "-" }}</td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="{{ url_for('admin.docs_view', coll=coll, id=d._id) }}">View</a>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('admin.docs_edit', coll=coll, id=d._id) }}">Edit</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=d._id) }}">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+  {% elif coll == 'categories' %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>_id</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Active</th>
+              <th>Popular</th>
+              <th>Created At</th>
+              <th>Updated At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in docs %}
+              <tr>
+                <td>{{ d._id }}</td>
+                <td>
+                  {% if d.image %}
+                    <img src="{{ d.image }}" alt="img" style="max-width:120px;max-height:80px;">
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>{{ d.name or "-" }}</td>
+                <td>{{ d.description or "-" }}</td>
+                <td>{% if d.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                <td>{% if d.is_populer %}<span class="badge bg-info">Popular</span>{% else %}-{% endif %}</td>
+                <td>{{ d.created_at or "-" }}</td>
+                <td>{{ d.updated_at or "-" }}</td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="{{ url_for('admin.docs_view', coll=coll, id=d._id) }}">View</a>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('admin.docs_edit', coll=coll, id=d._id) }}">Edit</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=d._id) }}">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+  {% elif coll == 'products' %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>_id</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Active</th>
+              <th>Popular</th>
+              <th>Created At</th>
+              <th>Updated At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in docs %}
+              <tr>
+                <td>{{ d._id }}</td>
+                <td>
+                  {% if d.image %}
+                    <img src="{{ d.image }}" alt="product" style="max-width:120px;max-height:80px;">
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>{{ d.name or "-" }}</td>
+                <td>
+                  {% if d.category_id %}
+                    <a href="{{ url_for('admin.docs_view', coll='categories', id=d.category_id) }}">{{ d.category_name or '-' }}</a>
+                  {% else %}
+                    {{ d.category_name or "-" }}
+                  {% endif %}
+                </td>
+                <td>{{ d.price or 0 }}</td>
+                <td>{% if d.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                <td>{% if d.is_populer %}<span class="badge bg-info">Popular</span>{% else %}-{% endif %}</td>
+                <td>{{ d.created_at or "-" }}</td>
+                <td>{{ d.updated_at or "-" }}</td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="{{ url_for('admin.docs_view', coll=coll, id=d._id) }}">View</a>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('admin.docs_edit', coll=coll, id=d._id) }}">Edit</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=d._id) }}">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elif coll == 'contact_messages' %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>_id</th>
+              <th>Full name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Product</th>
+              <th>Message</th>
+              <th>Created At</th>
+              <th>Updated At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in docs %}
+              <tr>
+                <td>{{ d._id }}</td>
+                <td>{{ d.full_name or "-" }}</td>
+                <td>{{ d.email or "-" }}</td>
+                <td>{{ d.phone or "-" }}</td>
+                <td>
+                  {% if d.product_id %}
+                    <a href="{{ url_for('admin.docs_view', coll='products', id=d.product_id) }}">{{ d.product_name or d.product_id }}</a>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td><pre style="max-height:80px;overflow:auto;white-space:pre-wrap">{{ d.message[:120] if d.message else '-' }}</pre></td>
+                <td>{{ d.created_at or "-" }}</td>
+                <td>{{ d.updated_at or "-" }}</td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="{{ url_for('admin.docs_view', coll=coll, id=d._id) }}">View</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=d._id) }}">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elif coll == 'testimonials' %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>_id</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Rating</th>
+              <th>Content</th>
+              <th>Email</th>
+              <th>Active</th>
+              <th>Created At</th>
+              <th>Updated At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in docs %}
+              <tr>
+                <td>{{ d._id }}</td>
+                <td>{{ d.name or "-" }}</td>
+                <td>{{ d.role or "-" }}</td>
+                <td>{% if d.rating %}{{ d.rating }}{% else %}-{% endif %}</td>
+                <td><div style="max-width:420px;max-height:80px;overflow:auto;white-space:pre-wrap">{{ (d.content[:140] + '...') if d.content and d.content|length > 140 else (d.content or '-') }}</div></td>
+                <td>{{ d.email or "-" }}</td>
+                <td>{% if d.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                <td>{{ d.created_at or "-" }}</td>
+                <td>{{ d.updated_at or "-" }}</td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="{{ url_for('admin.docs_view', coll=coll, id=d._id) }}">View</a>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('admin.docs_edit', coll=coll, id=d._id) }}">Edit</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=d._id) }}">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <table class="table table-sm">
+          <thead><tr><th>_id</th><th>Preview</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for d in docs %}
+              <tr>
+                <td>{{ d._id }}</td>
+                <td><pre style="max-height:80px;overflow:auto">{{ d | tojson }}</pre></td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="{{ url_for('admin.docs_view', coll=coll, id=d._id) }}">View</a>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('admin.docs_edit', coll=coll, id=d._id) }}">Edit</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('admin.docs_delete', coll=coll, id=d._id) }}">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </body>
+</html>

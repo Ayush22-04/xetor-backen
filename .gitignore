@@ -1,0 +1,66 @@
+# Python related
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+parts/
+var/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+.env
+.env.*
+
+# Flask instance folder
+instance/
+.webassets-cache
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database files
+*.sqlite3
+*.db
+
+# Logs, tmp, caches
+*.log
+tmp/
+temp/
+*.pid
+*.seed
+
+# Jupyter
+.ipynb_checkpoints
+
+# Node
+node_modules/
+
+# Misc
+celerybeat-schedule
+.envrc
