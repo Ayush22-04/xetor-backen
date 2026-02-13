@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import os
 # Do not import the Mongo client at module import time — creating a
 # MongoClient can trigger network/DNS resolution during cold-start which
@@ -20,19 +20,22 @@ def create_app():
     # basic secret key for sessions; override with environment variable in production
     app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
 
-    # Enable CORS for the frontend origin if Flask-Cors is installed.
-    # This allows requests from http://localhost:8080 (e.g. local frontend dev server).
+    # Enable CORS for the frontend origins (local dev server + production frontend).
+    # Add additional origins here as required.
+    ALLOWED_ORIGINS = ["http://localhost:8080", "https://xetor.ayushkamani.com"]
+
     if CORS is not None:
-        # allow credentials (cookies/session) and restrict to intended origin
-        CORS(app, origins=["http://localhost:8080"], supports_credentials=True)
+        # allow credentials (cookies/session) and restrict to intended origins
+        CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
     else:
         # Fallback: add CORS headers manually if Flask-Cors isn't installed or import failed.
-        # This helps development setups where package installation differs from requirements.
+        # This keeps development working even when the optional dependency isn't present.
         @app.after_request
         def _add_cors_headers(response):
-            # Allow the frontend dev server origin and credentials.
-            response.headers.setdefault("Access-Control-Allow-Origin", "http://localhost:8080")
-            response.headers.setdefault("Access-Control-Allow-Credentials", "true")
+            origin = request.headers.get("Origin")
+            if origin in ALLOWED_ORIGINS:
+                response.headers.setdefault("Access-Control-Allow-Origin", origin)
+                response.headers.setdefault("Access-Control-Allow-Credentials", "true")
             # Allow common headers and methods used by the frontend.
             response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type,Authorization")
             response.headers.setdefault("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
