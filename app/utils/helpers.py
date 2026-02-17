@@ -15,6 +15,7 @@ for email send success respectively.
 """
 import os
 import base64
+import io
 import logging
 from typing import Optional
 
@@ -42,7 +43,7 @@ def upload_to_imgbb(file_storage) -> Optional[str]:
 	url = os.getenv("IMGBB_URL", "https://api.imgbb.com/1/upload")
 
 	try:
-		# Read file bytes and base64 encode
+		# Read file bytes
 		file_bytes = file_storage.read()
 		# Reset file pointer so caller can still use it if needed
 		try:
@@ -50,7 +51,67 @@ def upload_to_imgbb(file_storage) -> Optional[str]:
 		except Exception:
 			pass
 
-		b64 = base64.b64encode(file_bytes).decode("utf-8")
+		# Attempt to compress images before upload to reduce payload size.
+		# Compression is best-effort — if Pillow is not available or the
+		# content is not an image we fall back to uploading the original
+		# bytes unchanged.
+		compressed = None
+		try:
+			from PIL import Image, ImageOps, UnidentifiedImageError
+
+			# only attempt image compression for common image files
+			if file_storage.filename and file_storage.filename.lower().endswith((".jpg", ".jpeg", ".png")):
+				stream = io.BytesIO(file_bytes)
+				img = Image.open(stream)
+				# optional max dimensions and quality (env overrides)
+				max_w = int(os.getenv("IMGBB_MAX_WIDTH", "1920"))
+				max_h = int(os.getenv("IMGBB_MAX_HEIGHT", "1080"))
+				quality = int(os.getenv("IMGBB_COMPRESS_QUALITY", "75"))
+
+				# resize if image is larger than allowed dimensions
+				w, h = img.size
+				if w > max_w or h > max_h:
+					ratio = min(max_w / w, max_h / h)
+					new_size = (int(w * ratio), int(h * ratio))
+					img = ImageOps.contain(img, new_size)
+
+				out = io.BytesIO()
+				fmt = img.format or ("JPEG" if file_storage.filename.lower().endswith((".jpg", ".jpeg")) else "PNG")
+				# Convert PNGs without alpha to RGB and save optimized; preserve
+				# alpha for images that have it.
+				if fmt.upper() in ("JPEG", "JPG"):
+					img = img.convert("RGB")
+					img.save(out, format="JPEG", quality=quality, optimize=True)
+				else:
+					# PNG path: try quantize to reduce size for large images
+					if img.mode in ("RGBA", "LA"):
+						# preserve alpha
+						img.save(out, format="PNG", optimize=True)
+					else:
+						# reduce colors for smaller size and save
+						try:
+							q = img.quantize(method=Image.MEDIANCUT)
+							q.save(out, format="PNG", optimize=True)
+						except Exception:
+							img.save(out, format="PNG", optimize=True)
+				compressed = out.getvalue()
+		except ImportError:
+			# Pillow not installed — skip compression
+			compressed = None
+		except UnidentifiedImageError:
+			compressed = None
+		except Exception:
+			# if anything goes wrong while compressing, fall back to original
+			logging.exception("Image compression failed, continuing with original bytes")
+			compressed = None
+
+		# Use compressed bytes only if smaller than original
+		if compressed and len(compressed) < len(file_bytes):
+			upload_bytes = compressed
+		else:
+			upload_bytes = file_bytes
+
+		b64 = base64.b64encode(upload_bytes).decode("utf-8")
 
 		payload = {"key": api_key, "image": b64}
 		resp = requests.post(url, data=payload, timeout=30)
